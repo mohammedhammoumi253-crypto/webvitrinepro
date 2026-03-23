@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>WebProVitrine</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+:root{
+  --bg:#0d1b3e;--bg2:#0a1530;
+  --gold:#c9922a;--gold2:#e8b84b;
+  --gp:rgba(201,146,42,0.13);--gb:rgba(201,146,42,0.35);
+  --text:#e8edf8;--muted:#8fa3cc;--border:rgba(255,255,255,0.08);
+  --sw:280px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+body{display:flex;overflow-x:hidden;}
+
+#overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:500;backdrop-filter:blur(2px);}
+#overlay.open{display:block;}
+
+#sidebar{position:fixed;top:0;left:0;width:var(--sw);height:100vh;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:1.8rem 1rem 1.5rem;z-index:600;overflow-y:auto;transform:translateX(-100%);transition:transform 0.28s cubic-bezier(.4,0,.2,1);}
+#sidebar.open{transform:translateX(0);}
+.logo{font-family:'Nunito',sans-serif;font-size:1.45rem;font-weight:900;color:var(--text);cursor:pointer;line-height:1.2;margin-bottom:3px;}
+.logo span{color:var(--gold2);}
+.logo-sub{font-size:0.58rem;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:2rem;}
+.nl{font-size:0.6rem;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:rgba(143,163,204,0.4);padding:0 0.6rem;margin:1.3rem 0 0.5rem;}
+nav a{display:flex;align-items:center;gap:14px;padding:0.55rem 0.75rem;border-radius:12px;color:var(--muted);text-decoration:none;font-size:0.92rem;font-weight:600;margin-bottom:5px;cursor:pointer;transition:all 0.18s;border-left:3px solid transparent;}
+nav a:hover{background:rgba(232,184,75,0.07);color:var(--text);}
+nav a.active{background:rgba(30,25,10,0.7);color:var(--gold2);font-weight:700;border-left-color:var(--gold2);}
+.nav-icon{width:42px;height:42px;border-radius:11px;flex-shrink:0;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:var(--muted);transition:all 0.18s;}
+nav a:hover .nav-icon{background:rgba(232,184,75,0.1);border-color:rgba(232,184,75,0.3);color:var(--gold2);}
+nav a.active .nav-icon{background:rgba(232,184,75,0.2);border-color:var(--gold2);color:var(--gold2);box-shadow:0 0 14px rgba(232,184,75,0.25);}
+.sfooter{margin-top:auto;padding-top:1.2rem;border-top:1px solid var(--border);}
+.cta-btn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0a1530;font-weight:800;font-size:0.88rem;padding:0.85rem 1rem;border-radius:12px;border:none;font-family:'Nunito',sans-serif;cursor:pointer;transition:opacity 0.2s;}
+.cta-btn:hover{opacity:0.88;}
+
+#topbar{position:fixed;top:0;left:0;right:0;height:64px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:400;}
+.topbar-left{display:flex;align-items:center;gap:14px;}
+.menu-btn{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,#2a4da0,#3a60c0);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:5px;transition:opacity 0.2s;}
+.menu-btn:hover{opacity:0.85;}
+.menu-btn span{display:block;width:20px;height:2.5px;background:#fff;border-radius:2px;}
+.topbar-logo{font-family:'Nunito',sans-serif;font-size:1.3rem;font-weight:900;color:var(--text);cursor:pointer;}
+.topbar-logo span{color:var(--gold2);}
+.close-btn{width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--muted);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all 0.18s;}
+.close-btn:hover{background:rgba(255,255,255,0.1);color:var(--text);}
+
+#main{flex:1;margin-top:64px;padding:3rem 3.5rem 5rem;min-height:calc(100vh - 64px);max-width:1100px;width:100%;margin-left:auto;margin-right:auto;}
+
+.page{display:none;}
+.page.active{display:block;animation:fu 0.28s ease;}
+@keyframes fu{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+.ptag{font-size:0.63rem;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--gold2);margin-bottom:0.6rem;}
+h1{font-family:'Nunito',sans-serif;font-size:clamp(2.2rem,4.5vw,3.8rem);font-weight:900;line-height:1.05;color:var(--text);margin-bottom:1.1rem;}
+h1 em{color:var(--gold2);font-style:normal;}
+h2{font-family:'Nunito',sans-serif;font-size:clamp(1.7rem,3vw,2.5rem);font-weight:900;line-height:1.1;color:var(--text);margin-bottom:0.8rem;}
+h3{font-size:1rem;font-weight:700;color:var(--text);margin-bottom:0.35rem;}
+.lead{font-size:1rem;color:var(--muted);line-height:1.8;max-width:520px;margin-bottom:2.5rem;font-weight:400;}
+.badge{display:inline-flex;align-items:center;gap:7px;background:var(--gp);color:var(--gold2);border:1px solid var(--gb);font-size:0.68rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:0.38rem 1rem;border-radius:50px;margin-bottom:1.5rem;}
+.brow{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:3rem;}
+.btn-p{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0a1530;font-weight:800;padding:0.88rem 2rem;border-radius:12px;border:none;font-size:0.93rem;cursor:pointer;font-family:'Nunito',sans-serif;transition:opacity 0.2s,transform 0.18s;display:inline-flex;align-items:center;gap:9px;}
+.btn-p:hover{opacity:0.88;transform:translateY(-1px);}
+.btn-o{background:rgba(255,255,255,0.05);color:var(--text);font-weight:700;padding:0.88rem 2rem;border-radius:12px;border:1px solid rgba(255,255,255,0.15);font-size:0.93rem;cursor:pointer;font-family:'Nunito',sans-serif;transition:all 0.2s;display:inline-flex;align-items:center;gap:9px;}
+.btn-o:hover{border-color:var(--gold2);color:var(--gold2);}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:1.3rem;}
+.hero-grid{display:grid;grid-template-columns:1fr 400px;gap:3rem;align-items:center;min-height:calc(100vh - 200px);}
+.hcard{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:18px;padding:2rem 2.2rem;}
+.hcard-title{display:flex;align-items:center;gap:9px;font-weight:800;font-size:1rem;color:var(--text);margin-bottom:1rem;}
+.hcard-title i{color:var(--gold2);}
+.hcard p{font-size:0.88rem;color:var(--muted);line-height:1.8;margin-bottom:1.3rem;}
+.cklist{list-style:none;display:flex;flex-direction:column;gap:0.6rem;}
+.cklist li{display:flex;align-items:center;gap:10px;font-size:0.88rem;color:var(--muted);}
+.cklist li i{color:#4dd68a;font-size:0.85rem;flex-shrink:0;}
+.card{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:14px;padding:1.6rem;transition:transform 0.22s,border-color 0.22s;}
+.card:hover{transform:translateY(-4px);border-color:var(--gb);}
+.ficon{width:46px;height:46px;border-radius:11px;background:var(--gp);border:1px solid var(--gb);display:flex;align-items:center;justify-content:center;color:var(--gold2);font-size:1.1rem;margin-bottom:1rem;}
+.card p{font-size:0.85rem;color:var(--muted);line-height:1.65;margin-top:0.3rem;}
+
+.rbox{display:inline-flex;align-items:center;gap:16px;background:rgba(255,255,255,0.04);border:1px solid var(--gb);border-radius:14px;padding:1.3rem 2rem;margin-bottom:2rem;}
+.rnum{font-family:'Nunito',sans-serif;font-size:3.2rem;font-weight:900;color:var(--gold2);line-height:1;}
+.rstars{color:var(--gold2);font-size:1rem;letter-spacing:1px;}
+.rinfo{font-size:0.77rem;color:var(--muted);margin-top:3px;}
+.acard{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:14px;padding:1.8rem;transition:transform 0.2s,border-color 0.2s;margin-bottom:1.5rem;}
+.acard:hover{transform:translateY(-3px);border-color:var(--gb);}
+.atxt{font-size:0.92rem;color:var(--muted);line-height:1.78;font-style:italic;margin-bottom:1.3rem;border-left:3px solid var(--gb);padding-left:1rem;}
+.aauthor{display:flex;align-items:center;gap:0.8rem;}
+.avatar{width:44px;height:44px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0a1530;font-weight:900;font-size:1rem;display:flex;align-items:center;justify-content:center;}
+.aname{font-weight:700;font-size:0.9rem;color:var(--text);}
+.arole{font-size:0.75rem;color:var(--muted);}
+.anote{font-size:0.75rem;color:var(--gold2);font-weight:700;margin-top:3px;}
+
+.avis-form-box{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:2rem;margin-top:2.5rem;}
+.avis-form-box h3{margin-bottom:0.4rem;font-size:1.1rem;}
+.avis-form-box .sub-desc{font-size:0.85rem;color:var(--muted);margin-bottom:1.5rem;}
+.star-select{display:flex;gap:8px;margin-bottom:1.2rem;flex-direction:row-reverse;justify-content:flex-end;}
+.star-select input{display:none;}
+.star-select label{font-size:2rem;color:rgba(255,255,255,0.15);cursor:pointer;transition:color 0.15s;line-height:1;}
+.star-select input:checked ~ label,.star-select label:hover,.star-select label:hover ~ label{color:var(--gold2);}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;}
+.fg-full{grid-column:1/-1;}
+.lbl{display:block;font-size:0.71rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.4rem;}
+.inp{width:100%;background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.1);border-radius:8px;color:var(--text);font-family:'Nunito',sans-serif;font-size:0.9rem;padding:0.72rem 1rem;outline:none;transition:border-color 0.2s;}
+.inp::placeholder{color:rgba(143,163,204,0.5);}
+.inp:focus{border-color:var(--gold2);}
+textarea.inp{resize:vertical;min-height:90px;}
+.sub-btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0a1530;font-family:'Nunito',sans-serif;font-weight:800;font-size:0.92rem;padding:0.85rem 2rem;border:none;border-radius:10px;cursor:pointer;margin-top:0.5rem;display:inline-flex;align-items:center;gap:9px;transition:opacity 0.2s;}
+.sub-btn:hover{opacity:0.88;}
+.succ-avis{display:none;margin-top:1rem;background:rgba(77,214,138,0.08);border:1px solid rgba(77,214,138,0.3);color:#4dd68a;padding:0.9rem 1.2rem;border-radius:9px;font-size:0.88rem;}
+
+.abgrid{display:grid;grid-template-columns:1.2fr 1fr;gap:3rem;align-items:start;}
+.abtxt p{font-size:0.92rem;color:var(--muted);line-height:1.82;margin-bottom:0.9rem;}
+.abtxt strong{color:var(--text);}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.sbox{background:rgba(255,255,255,0.04);border:1px solid var(--gb);border-radius:12px;padding:1.4rem;text-align:center;}
+.snum{font-family:'Nunito',sans-serif;font-size:2.3rem;font-weight:900;color:var(--gold2);}
+.slabel{font-size:0.73rem;color:var(--muted);margin-top:0.2rem;}
+
+.tl{position:relative;padding-left:2.3rem;margin-top:0.5rem;}
+.tl::before{content:'';position:absolute;left:8px;top:4px;bottom:4px;width:2px;background:linear-gradient(to bottom,var(--gold),var(--gold2));border-radius:2px;}
+.tli{position:relative;margin-bottom:2.3rem;}
+.tldot{position:absolute;left:-2.3rem;top:4px;width:17px;height:17px;border-radius:50%;background:var(--gold);border:3px solid var(--bg);}
+.tlyear{font-size:0.63rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold2);margin-bottom:0.25rem;}
+.tli h3{color:var(--text);}
+.tli p{font-size:0.87rem;color:var(--muted);line-height:1.72;margin-top:0.3rem;}
+
+.fbox{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:2.5rem;max-width:700px;}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem;}
+.ff{grid-column:1/-1;}
+.fsub{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0a1530;font-family:'Nunito',sans-serif;font-weight:800;font-size:0.95rem;padding:0.9rem 2.3rem;border:none;border-radius:10px;cursor:pointer;margin-top:1.5rem;display:inline-flex;align-items:center;gap:9px;transition:opacity 0.2s,transform 0.18s;}
+.fsub:hover{opacity:0.88;transform:translateY(-1px);}
+.fsub:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+.succ{display:none;margin-top:1.5rem;background:rgba(77,214,138,0.08);border:1px solid rgba(77,214,138,0.3);color:#4dd68a;padding:1rem 1.4rem;border-radius:10px;font-size:0.88rem;line-height:1.65;}
+.fnote{display:flex;align-items:center;gap:9px;background:var(--gp);border:1px solid var(--gb);color:var(--gold2);font-size:0.78rem;font-weight:700;padding:0.65rem 1.1rem;border-radius:9px;margin-bottom:1.8rem;width:fit-content;}
+.fhint{font-size:0.73rem;color:var(--muted);margin-top:0.35rem;}
+.div{border:none;border-top:1px solid var(--border);margin:2.5rem 0;}
+.pfooter{margin-top:4rem;padding-top:1.5rem;border-top:1px solid var(--border);font-size:0.78rem;color:var(--muted);text-align:center;}
+
+@media(max-width:900px){.hero-grid{grid-template-columns:1fr;}.hcard{display:none;}}
+@media(max-width:768px){#main{padding:2rem 1.2rem 4rem;}.g2,.g3,.fgrid,.abgrid,.fg{grid-template-columns:1fr;}.ff,.fg-full{grid-column:auto;}.sgrid{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+
+<div id="overlay" onclick="closeSidebar()"></div>
+
+<div id="topbar">
+  <div class="topbar-left">
+    <button class="menu-btn" onclick="toggleSidebar()">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="topbar-logo" onclick="goTo('accueil');closeSidebar()">Web<span>Pro</span>Vitrine</div>
+  </div>
+  <button class="close-btn" onclick="closeSidebar()"><i class="fa-solid fa-xmark"></i></button>
+</div>
+
+<aside id="sidebar">
+  <div class="logo" onclick="goTo('accueil');closeSidebar()">Web<span>Pro</span>Vitrine</div>
+  <div class="logo-sub">Agence web vitrine</div>
+  <div class="nl">Menu</div>
+  <nav>
+    <a onclick="goTo('accueil');closeSidebar()" id="nav-accueil" class="active">
+      <span class="nav-icon"><i class="fa-solid fa-house"></i></span> Accueil
+    </a>
+    <a onclick="goTo('avis');closeSidebar()" id="nav-avis">
+      <span class="nav-icon"><i class="fa-solid fa-star"></i></span> Avis clients
+    </a>
+    <a onclick="goTo('apropos');closeSidebar()" id="nav-apropos">
+      <span class="nav-icon"><i class="fa-solid fa-circle-info"></i></span> A propos
+    </a>
+    <a onclick="goTo('histoire');closeSidebar()" id="nav-histoire">
+      <span class="nav-icon"><i class="fa-solid fa-book-open"></i></span> Notre histoire
+    </a>
+    <div class="nl" style="margin-top:1.2rem;">Mon projet</div>
+    <a onclick="goTo('creer');closeSidebar()" id="nav-creer">
+      <span class="nav-icon"><i class="fa-solid fa-rocket"></i></span> Creer mon site
+    </a>
+  </nav>
+  <div class="sfooter">
+    <button class="cta-btn" onclick="goTo('creer');closeSidebar()">
+      <i class="fa-solid fa-wand-magic-sparkles"></i> Demarrer gratuitement
+    </button>
+  </div>
+</aside>
+
+<main id="main">
+
+  <!-- ACCUEIL -->
+  <div class="page active" id="page-accueil">
+    <div class="hero-grid">
+      <div>
+        <div class="badge"><i class="fa-solid fa-shield-halved"></i> Hebergement 90% gratuit</div>
+        <div class="ptag">Bienvenue sur WebProVitrine</div>
+        <h1>Votre entreprise<br/>merite <em>un vrai</em><br/>site web</h1>
+        <p class="lead">Site professionnel cree rapidement et efficacement. Design soigne, lien de domaine livre, heberge a vie. Vous ne touchez a rien — on s'occupe de tout.</p>
+        <div class="brow">
+          <button class="btn-p" onclick="goTo('creer')">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Creer mon site gratuitement
+          </button>
+          <button class="btn-o" onclick="goTo('avis')">
+            <i class="fa-solid fa-star"></i> Voir les avis
+          </button>
+        </div>
+      </div>
+      <div class="hcard">
+        <div class="hcard-title"><i class="fa-regular fa-star"></i> Notre histoire</div>
+        <p>WebProVitrine est ne d'un constat simple : trop de petites entreprises perdent des clients faute d'une presence en ligne professionnelle. Notre mission : offrir a chaque artisan, commercant et independant un site complet, beau et performant, a cout quasi nul.</p>
+        <ul class="cklist">
+          <li><i class="fa-solid fa-check"></i> Fonde par des passionnes du web</li>
+          <li><i class="fa-solid fa-check"></i> 100% oriente petites entreprises</li>
+          <li><i class="fa-solid fa-check"></i> Disponible partout en France</li>
+        </ul>
+      </div>
+    </div>
+    <div class="div"></div>
+    <div class="g3">
+      <div class="card">
+        <div class="ficon"><i class="fa-solid fa-pen-ruler"></i></div>
+        <h3>Design sur mesure</h3>
+        <p>Un site unique adapte a votre activite, vos couleurs et votre identite visuelle.</p>
+      </div>
+      <div class="card">
+        <div class="ficon"><i class="fa-solid fa-bolt"></i></div>
+        <h3>Rapide et efficace</h3>
+        <p>Votre site est mis en ligne rapidement et efficacement apres reception de votre demande.</p>
+      </div>
+      <div class="card">
+        <div class="ficon"><i class="fa-solid fa-tag"></i></div>
+        <h3>Cout tres reduit</h3>
+        <p>L'hebergement est quasi gratuit. Pas d'abonnement mensuel, pas de surprise.</p>
+      </div>
+    </div>
+    <div class="pfooter">Copyright 2025 WebProVitrine</div>
+  </div>
+
+  <!-- AVIS -->
+  <div class="page" id="page-avis">
+    <div class="ptag">Temoignages</div>
+    <h2>Avis de nos clients</h2>
+    <p class="lead">Des professionnels qui ont choisi WebProVitrine. Decouvrez leurs temoignages et laissez le votre !</p>
+    <div class="rbox">
+      <div class="rnum" id="avgNote">4,5</div>
+      <div>
+        <div class="rstars" id="avgStars">
+          <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i>
+        </div>
+        <div class="rinfo">Note moyenne</div>
+        <div class="rinfo" id="nbAvis">Basee sur 2 avis</div>
+      </div>
+    </div>
+    <div id="avis-list">
+      <div class="acard">
+        <div class="atxt">« Grace a WebProVitrine, j'ai enfin un site presentable pour mon activite. Le rendu est vraiment propre et professionnel. Mes clients me trouvent facilement sur internet. Je suis tres satisfait du travail fourni. »</div>
+        <div class="aauthor">
+          <div class="avatar">M</div>
+          <div>
+            <div class="aname">Marc Durand</div>
+            <div class="arole">Artisan plombier — Bordeaux</div>
+            <div class="anote"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i> 5/5</div>
+          </div>
+        </div>
+      </div>
+      <div class="acard">
+        <div class="atxt">« J'avais besoin d'un site elegant pour presenter mes creations. WebProVitrine a parfaitement compris ma vision. Le site est soigne et j'ai deja recu de nouveaux clients grace a lui des la premiere semaine. »</div>
+        <div class="aauthor">
+          <div class="avatar">S</div>
+          <div>
+            <div class="aname">Sophie Lambert</div>
+            <div class="arole">Creatrice de bijoux — Lyon</div>
+            <div class="anote"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i> 4/5</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="avis-form-box">
+      <h3><i class="fa-solid fa-pen-to-square" style="color:var(--gold2);margin-right:8px"></i>Publiez votre avis</h3>
+      <p class="sub-desc">Vous avez utilise WebProVitrine ? Partagez votre experience !</p>
+      <form id="avisForm">
+        <label class="lbl">Votre note</label>
+        <div class="star-select">
+          <input type="radio" name="note" id="s5" value="5"/><label for="s5"><i class="fa-solid fa-star"></i></label>
+          <input type="radio" name="note" id="s4" value="4"/><label for="s4"><i class="fa-solid fa-star"></i></label>
+          <input type="radio" name="note" id="s3" value="3"/><label for="s3"><i class="fa-solid fa-star"></i></label>
+          <input type="radio" name="note" id="s2" value="2"/><label for="s2"><i class="fa-solid fa-star"></i></label>
+          <input type="radio" name="note" id="s1" value="1"/><label for="s1"><i class="fa-solid fa-star"></i></label>
+        </div>
+        <div class="fg">
+          <div>
+            <label class="lbl"><i class="fa-solid fa-user"></i> Prenom *</label>
+            <input class="inp" type="text" id="avis-prenom" placeholder="Jean" required/>
+          </div>
+          <div>
+            <label class="lbl"><i class="fa-solid fa-briefcase"></i> Votre metier</label>
+            <input class="inp" type="text" id="avis-metier" placeholder="Artisan, commercant..."/>
+          </div>
+          <div class="fg-full">
+            <label class="lbl"><i class="fa-solid fa-comment"></i> Votre avis *</label>
+            <textarea class="inp" id="avis-texte" placeholder="Partagez votre experience avec WebProVitrine..." required></textarea>
+          </div>
+        </div>
+        <button type="submit" class="sub-btn">
+          <i class="fa-solid fa-paper-plane"></i> Publier mon avis
+        </button>
+        <div class="succ-avis" id="succAvis">
+          <i class="fa-solid fa-circle-check"></i> <strong>Merci !</strong> Votre avis a ete publie avec succes.
+        </div>
+      </form>
+    </div>
+    <div class="pfooter">Copyright 2025 WebProVitrine</div>
+  </div>
+
+  <!-- A PROPOS -->
+  <div class="page" id="page-apropos">
+    <div class="ptag">A propos</div>
+    <h2>Qui sommes-nous ?</h2>
+    <p class="lead">WebProVitrine est une agence web specialisee dans la creation de sites vitrines pour artisans, commercants et independants.</p>
+    <div class="abgrid">
+      <div class="abtxt">
+        <p>Notre mission : <strong>donner une vitrine professionnelle sur internet a chaque entrepreneur</strong>, quelle que soit la taille de son activite ou son budget.</p>
+        <p>Nous prenons en charge la conception, le design et la publication de votre site de A a Z. Vous n'avez rien a installer, rien a gerer.</p>
+        <p>L'hebergement est <strong>accessible a 90% sans frais</strong>. Vous recevez un lien de domaine fonctionnel a partager immediatement.</p>
+        <p>Chaque demande est traitee avec soin et reactivite. Un formulaire rempli, et votre site est en ligne rapidement.</p>
+      </div>
+      <div class="sgrid">
+        <div class="sbox"><div class="snum">2+</div><div class="slabel">Sites publies</div></div>
+        <div class="sbox"><div class="snum">90%</div><div class="slabel">Gratuit</div></div>
+        <div class="sbox"><div class="snum">4,5</div><div class="slabel">Note moyenne</div></div>
+        <div class="sbox"><div class="snum"><i class="fa-solid fa-bolt" style="font-size:1.6rem"></i></div><div class="slabel">Rapide et efficace</div></div>
+      </div>
+    </div>
+    <div class="pfooter">Copyright 2025 WebProVitrine</div>
+  </div>
+
+  <!-- HISTOIRE -->
+  <div class="page" id="page-histoire">
+    <div class="ptag">Notre histoire</div>
+    <h2>Comment WebProVitrine est ne</h2>
+    <p class="lead">Une idee simple, nee d'un constat reel : trop de bons professionnels sont invisibles sur internet.</p>
+    <div class="tl">
+      <div class="tli">
+        <div class="tldot"></div>
+        <div class="tlyear">L'idee</div>
+        <h3>Un probleme concret</h3>
+        <p>Tout est parti d'une discussion avec un artisan local. Excellent dans son metier, mais sans aucune presence en ligne. Il perdait des clients parce qu'on ne pouvait pas le trouver sur internet.</p>
+      </div>
+      <div class="tli">
+        <div class="tldot"></div>
+        <div class="tlyear">La solution</div>
+        <h3>Une approche accessible</h3>
+        <p>Nous avons mis en place une infrastructure fiable permettant de creer des sites vitrines professionnels avec un cout d'hebergement quasi nul, rapide et durable pour nos clients.</p>
+      </div>
+      <div class="tli">
+        <div class="tldot"></div>
+        <div class="tlyear">Le lancement</div>
+        <h3>WebProVitrine est ne</h3>
+        <p>Un formulaire, un message, et votre site est en ligne. Les premieres demandes ont rapidement afflue avec des retours tres positifs de nos clients.</p>
+      </div>
+      <div class="tli">
+        <div class="tldot" style="background:var(--gold2)"></div>
+        <div class="tlyear">Aujourd'hui et demain</div>
+        <h3>Une ambition qui grandit</h3>
+        <p>Notre objectif : aider des centaines d'entrepreneurs a exister sur le web, avec un service toujours plus rapide, plus soigne et plus accessible.</p>
+      </div>
+    </div>
+    <div class="pfooter">Copyright 2025 WebProVitrine</div>
+  </div>
+
+  <!-- CREER MON SITE -->
+  <div class="page" id="page-creer">
+    <div class="ptag">Commencer</div>
+    <h2>Creez votre site vitrine</h2>
+    <p class="lead">Remplissez le formulaire. Nous recevons votre demande directement et demarrons votre site rapidement et efficacement.</p>
+    <div class="fbox">
+      <div class="fnote">
+        <i class="fa-solid fa-circle-check"></i>
+        Hebergement 90% gratuit &nbsp;|&nbsp; Lien de domaine inclus &nbsp;|&nbsp; Livraison rapide et efficace
+      </div>
+      <form id="siteForm">
+        <input type="hidden" name="_subject" value="Nouvelle demande de site vitrine - WebProVitrine"/>
+        <div class="fgrid">
+          <div>
+            <label class="lbl"><i class="fa-solid fa-user"></i> Prenom *</label>
+            <input class="inp" type="text" name="prenom" placeholder="Jean" required/>
+          </div>
+          <div>
+            <label class="lbl"><i class="fa-solid fa-user"></i> Nom *</label>
+            <input class="inp" type="text" name="nom" placeholder="Dupont" required/>
+          </div>
+          <div>
+            <label class="lbl"><i class="fa-solid fa-envelope"></i> Votre email *</label>
+            <input class="inp" type="email" name="email" placeholder="jean@exemple.fr" required/>
+          </div>
+          <div>
+            <label class="lbl"><i class="fa-solid fa-phone"></i> Telephone</label>
+            <input class="inp" type="tel" name="tel" placeholder="06 12 34 56 78"/>
+          </div>
+          <div>
+            <label class="lbl"><i class="fa-solid fa-building"></i> Nom de l'entreprise *</label>
+            <input class="inp" type="text" name="entreprise" placeholder="Ma Boulangerie" required/>
+          </div>
+          <div>
+            <label class="lbl"><i class="fa-solid fa-briefcase"></i> Secteur d'activite *</label>
+            <select class="inp" name="secteur" required>
+              <option value="">Choisissez</option>
+              <option>Artisan / BTP</option>
+              <option>Restauration / Alimentation</option>
+              <option>Commerce / Boutique</option>
+              <option>Beaute / Bien-etre</option>
+              <option>Services aux particuliers</option>
+              <option>Professions liberales</option>
+              <option>Sante / Medical</option>
+              <option>Sport / Coaching</option>
+              <option>Autre</option>
+            </select>
+          </div>
+          <div class="ff">
+            <label class="lbl"><i class="fa-solid fa-align-left"></i> Decrivez votre activite *</label>
+            <textarea class="inp" name="description" placeholder="Presentez votre activite : ce que vous faites, ou vous etes situe, votre clientele cible..." required></textarea>
+          </div>
+          <div class="ff">
+            <label class="lbl"><i class="fa-solid fa-list-check"></i> Contenu souhaite pour le site</label>
+            <textarea class="inp" name="contenu" placeholder="Pages souhaitees, couleurs preferees, photos disponibles..."></textarea>
+            <p class="fhint"><i class="fa-solid fa-lightbulb"></i> Plus vous donnez de details, plus votre site sera personnalise.</p>
+          </div>
+        </div>
+        <button type="submit" class="fsub" id="submitBtn">
+          <i class="fa-solid fa-paper-plane"></i> Envoyer ma demande
+        </button>
+        <div class="succ" id="successMsg">
+          <i class="fa-solid fa-circle-check"></i> <strong>Demande envoyee avec succes !</strong><br/>
+          Notre equipe vous contactera rapidement pour demarrer la creation de votre site.
+        </div>
+      </form>
+    </div>
+    <div class="pfooter">Copyright 2025 WebProVitrine</div>
+  </div>
+
+</main>
+
+<script>
+function toggleSidebar(){
+  const s=document.getElementById('sidebar');
+  const o=document.getElementById('overlay');
+  s.classList.toggle('open');
+  o.classList.toggle('open');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+}
+function goTo(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('nav a').forEach(a=>a.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.getElementById('nav-'+page).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+document.getElementById('siteForm').addEventListener('submit',async function(e){
+  e.preventDefault();
+  const btn=document.getElementById('submitBtn');
+  btn.disabled=true;
+  btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Envoi en cours...';
+  try{
+    const res=await fetch('https://formspree.io/f/xpzvwkqp',{method:'POST',body:new FormData(this),headers:{'Accept':'application/json'}});
+    if(res.ok){
+      this.reset();
+      document.getElementById('successMsg').style.display='block';
+      btn.innerHTML='<i class="fa-solid fa-circle-check"></i> Demande envoyee !';
+      btn.style.background='linear-gradient(135deg,#1a5c35,#2d9e5a)';
+      btn.style.color='#fff';
+    }else{throw new Error();}
+  }catch{
+    btn.disabled=false;
+    btn.innerHTML='<i class="fa-solid fa-paper-plane"></i> Envoyer ma demande';
+    alert('Erreur. Contactez-nous : mohammedhammoumi253@gmail.com');
+  }
+});
+
+let avisData=[
+  {prenom:'Marc Durand',metier:'Artisan plombier — Bordeaux',texte:'Grace a WebProVitrine, j\'ai enfin un site presentable pour mon activite. Le rendu est vraiment propre et professionnel. Mes clients me trouvent facilement sur internet.',note:5},
+  {prenom:'Sophie Lambert',metier:'Creatrice de bijoux — Lyon',texte:'J\'avais besoin d\'un site elegant pour presenter mes creations. WebProVitrine a parfaitement compris ma vision. Le site est soigne et j\'ai deja recu de nouveaux clients.',note:4}
+];
+function starsHTML(n){
+  let h='';
+  for(let i=1;i<=5;i++){
+    if(i<=Math.floor(n))h+='<i class="fa-solid fa-star"></i>';
+    else if(i===Math.ceil(n)&&n%1>=0.5)h+='<i class="fa-solid fa-star-half-stroke"></i>';
+    else h+='<i class="fa-regular fa-star"></i>';
+  }
+  return h;
+}
+function updateRating(){
+  const avg=avisData.reduce((s,a)=>s+a.note,0)/avisData.length;
+  document.getElementById('avgNote').textContent=avg.toFixed(1).replace('.',',');
+  document.getElementById('avgStars').innerHTML=starsHTML(avg);
+  document.getElementById('nbAvis').textContent='Basee sur '+avisData.length+' avis';
+}
+function renderAvis(){
+  document.getElementById('avis-list').innerHTML=avisData.map(a=>`
+    <div class="acard">
+      <div class="atxt">« ${a.texte} »</div>
+      <div class="aauthor">
+        <div class="avatar">${a.prenom.charAt(0)}</div>
+        <div>
+          <div class="aname">${a.prenom}</div>
+          <div class="arole">${a.metier}</div>
+          <div class="anote">${starsHTML(a.note)} ${a.note}/5</div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+document.getElementById('avisForm').addEventListener('submit',function(e){
+  e.preventDefault();
+  const note=parseInt(document.querySelector('input[name="note"]:checked')?.value||0);
+  const prenom=document.getElementById('avis-prenom').value.trim();
+  const metier=document.getElementById('avis-metier').value.trim();
+  const texte=document.getElementById('avis-texte').value.trim();
+  if(!note){alert('Veuillez selectionner une note.');return;}
+  if(!prenom||!texte){alert('Veuillez remplir les champs obligatoires.');return;}
+  avisData.unshift({prenom,metier:metier||'Client WebProVitrine',texte,note});
+  renderAvis();
+  updateRating();
+  this.reset();
+  document.getElementById('succAvis').style.display='block';
+  setTimeout(()=>document.getElementById('succAvis').style.display='none',4000);
+});
+</script>
+</body>
+</html>
